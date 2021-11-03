@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/react-scheduling-memory-simulator/static/css/main.14a206f3.chunk.css",
+    "main.js": "/react-scheduling-memory-simulator/static/js/main.264ee170.chunk.js",
+    "main.js.map": "/react-scheduling-memory-simulator/static/js/main.264ee170.chunk.js.map",
+    "runtime-main.js": "/react-scheduling-memory-simulator/static/js/runtime-main.a24c00d2.js",
+    "runtime-main.js.map": "/react-scheduling-memory-simulator/static/js/runtime-main.a24c00d2.js.map",
+    "static/js/2.67146673.chunk.js": "/react-scheduling-memory-simulator/static/js/2.67146673.chunk.js",
+    "static/js/2.67146673.chunk.js.map": "/react-scheduling-memory-simulator/static/js/2.67146673.chunk.js.map",
+    "static/js/3.eee56ee1.chunk.js": "/react-scheduling-memory-simulator/static/js/3.eee56ee1.chunk.js",
+    "static/js/3.eee56ee1.chunk.js.map": "/react-scheduling-memory-simulator/static/js/3.eee56ee1.chunk.js.map",
+    "index.html": "/react-scheduling-memory-simulator/index.html",
+    "static/css/main.14a206f3.chunk.css.map": "/react-scheduling-memory-simulator/static/css/main.14a206f3.chunk.css.map",
+    "static/js/2.67146673.chunk.js.LICENSE.txt": "/react-scheduling-memory-simulator/static/js/2.67146673.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.a24c00d2.js",
+    "static/js/2.67146673.chunk.js",
+    "static/css/main.14a206f3.chunk.css",
+    "static/js/main.264ee170.chunk.js"
+  ]
+}
