@@ -25,16 +25,18 @@ const CustomInput = React.forwardRef(function CustomInput(props, ref) {
       components={{ Input: StyledInputElement }}
       {...props}
       ref={ref}
+      type="number"
     />
   );
 });
 
-export default function UnstyledInput({ placeholder, value }) {
+export default function UnstyledInput({ placeholder, value, onChange }) {
   return (
     <CustomInput
       aria-label="Demo input"
       placeholder={placeholder}
       value={value}
+      onChange={onChange}
     />
   );
 }

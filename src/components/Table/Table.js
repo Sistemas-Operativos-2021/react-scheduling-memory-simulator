@@ -15,7 +15,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function BasicTable({ items = [] }) {
+export default function BasicTable({ items = [], handleInputs }) {
   const classes = useStyles();
   return (
     <TableContainer component={Paper}>
@@ -38,33 +38,54 @@ export default function BasicTable({ items = [] }) {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {index}
+                {process.id}
               </TableCell>
 
-              <Tooltip title="Ingrese el tiempo en el que el proceso llega al sistema.">
+              <Tooltip
+                arrow
+                placement="top"
+                title="Ingrese el tiempo en el que el proceso llega al sistema."
+              >
                 <TableCell align="center">
                   <CustomInput
                     classes={classes.inputValue}
                     placeholder={process.arrival_time}
                     value={process.arrival_time}
+                    onChange={({ target: { value } }) =>
+                      handleInputs(index, "arrival_time", value)
+                    }
                   />
                 </TableCell>
               </Tooltip>
-              <Tooltip title="Ingrese el tiempo en el que el proceso abandona al sistema.">
+              <Tooltip
+                arrow
+                placement="top"
+                title="Ingrese el tiempo en el que el proceso abandona al sistema."
+              >
                 <TableCell align="center">
                   <CustomInput
                     classes={classes.inputValue}
                     placeholder={process.irruption_time}
                     value={process.irruption_time}
+                    onChange={({ target: { value } }) =>
+                      handleInputs(index, "irruption_time", value)
+                    }
                   />
                 </TableCell>
               </Tooltip>
-              <Tooltip title="Ingrese el espacio en memoria que el proceso ocupará.">
+              <Tooltip
+                arrow
+                placement="top"
+                title="Ingrese el espacio en memoria que el proceso ocupará."
+              >
                 <TableCell align="center">
                   <CustomInput
                     classes={classes.inputValue}
                     placeholder={process.size}
                     value={process.size}
+                    onChange={({ target: { value } }) =>
+                      handleInputs(index, "size", value)
+                    }
                   />
                 </TableCell>
               </Tooltip>

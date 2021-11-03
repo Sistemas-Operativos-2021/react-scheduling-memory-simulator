@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -39,10 +39,28 @@ const useStyles = makeStyles({
   },
 });
 const steps = ["Ingresar procesos", "Corroborar memoria"];
+const newProcess = {
+  id: 1,
+  arrival_time: 0,
+  irruption_time: 0,
+  size: 0,
+};
 
 export default function HorizontalLinearStepper() {
   const classes = useStyles();
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = useState(0);
+  const [processes, setProcesses] = useState([newProcess]);
+
+  const addNewProcess = () => {
+    setProcesses([...processes, { ...newProcess, id: processes.length + 1 }]);
+  };
+
+  const handleInputs = (index, field, value) => {
+    if (value < 0) return false;
+    const processesCopy = [...processes];
+    processesCopy[index][field] = value || 0;
+    setProcesses(processesCopy);
+  };
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -112,46 +130,29 @@ export default function HorizontalLinearStepper() {
               }}
             >
               {activeStep === 0 && (
-                <Table
-                  titles={[
-                    "Proceso ID",
-                    "Tiempo de arribo (μs)",
-                    "Tiempo de irrupción (μs)	",
-                    "Tamaño (MB)",
-                  ]}
-                  items={[
-                    {
-                      id: 1,
-                      arrival_time: 0,
-                      irruption_time: 10,
-                      size: 100,
-                    },
-                    {
-                      id: 2,
-                      arrival_time: 0,
-                      irruption_time: 2,
-                      size: 100,
-                    },
-                    {
-                      id: 3,
-                      arrival_time: 0,
-                      irruption_time: 1,
-                      size: 100,
-                    },
-                    {
-                      id: 4,
-                      arrival_time: 1,
-                      irruption_time: 5,
-                      size: 150,
-                    },
-                    {
-                      id: 5,
-                      arrival_time: 2,
-                      irruption_time: 4,
-                      size: 250,
-                    },
-                  ]}
-                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    overflow: "auto",
+                  }}
+                >
+                  <Table
+                    titles={[
+                      "Proceso ID",
+                      "Tiempo de arribo (μs)",
+                      "Tiempo de irrupción (μs)	",
+                      "Tamaño (MB)",
+                    ]}
+                    items={processes}
+                    handleInputs={handleInputs}
+                  />
+                  <Box marginY={1} />
+                  <Button onClick={addNewProcess} variant="contained">
+                    Agregar proceso
+                  </Button>
+                </Box>
               )}
               {activeStep === 1 && (
                 <MemoryTable
