@@ -34,7 +34,7 @@ export default function UnstyledInput({ placeholder, value, onChange }) {
   return (
     <CustomInput
       aria-label="Demo input"
-      placeholder={placeholder}
+      placeholder={(String(placeholder))}
       value={value}
       onChange={onChange}
     />

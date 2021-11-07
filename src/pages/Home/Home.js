@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import { makeStyles } from "@mui/styles";
 import Table from "../../components/Table/Table";
-import MemoryTable from "../../components/MemoryTable/Table";
+import MemoryTable from "../../components/MemoryTable/MemoryTable";
+import Simulation from "../../components/Simulation/Simulation";
+import { runSRTF } from "../../utils/scheduleSRTF";
+import { memoryPartitions } from "./memoryPartitions";
 const useStyles = makeStyles({
   root: {
     display: "flex",
@@ -58,7 +60,7 @@ export default function HorizontalLinearStepper() {
   const handleInputs = (index, field, value) => {
     if (value < 0) return false;
     const processesCopy = [...processes];
-    processesCopy[index][field] = value || 0;
+    processesCopy[index][field] = Number(value) || 0;
     setProcesses(processesCopy);
   };
 
@@ -82,109 +84,83 @@ export default function HorizontalLinearStepper() {
         disabled={activeStep === 0}
         onClick={handleBack}
       >
-        Back
+        Atrás
       </Button>
       <Box sx={{ flex: "1 1 auto" }} />
 
       <Button onClick={handleNext}>
-        {activeStep === steps.length - 1 ? "Finish" : "Next"}
+        {activeStep === steps.length - 1 ? "Correr simulacion" : "Siguiente"}
       </Button>
     </Box>
   );
 
+  
   return (
     <div className={classes.root}>
       <div className={classes.content}>
-        <Stepper activeStep={activeStep}>
-          {steps.map((label, index) => {
-            const stepProps = {};
-            const labelProps = {};
-
-            return (
-              <Step key={label} {...stepProps}>
-                <StepLabel className={classes.stepLabel} {...labelProps}>
-                  {label}
-                </StepLabel>
-              </Step>
-            );
-          })}
-        </Stepper>
         {activeStep === steps.length ? (
-          <React.Fragment>
-            <Typography sx={{ mt: 2, mb: 1 }}>
-              Aca pondría un simulador si tan solo tuviera uno
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-              <Box sx={{ flex: "1 1 auto" }} />
-              <Button onClick={handleReset}>Reset</Button>
-            </Box>
-          </React.Fragment>
+          <Simulation resetSimulation={handleReset} memoryPartitions={memoryPartitions} processes={processes} />
         ) : (
-          <React.Fragment>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                pt: 2,
-                maxHeight: "40rem",
-              }}
-            >
-              {activeStep === 0 && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    overflow: "auto",
-                  }}
-                >
-                  <Table
-                    titles={[
-                      "Proceso ID",
-                      "Tiempo de arribo (μs)",
-                      "Tiempo de irrupción (μs)	",
-                      "Tamaño (MB)",
-                    ]}
-                    items={processes}
-                    handleInputs={handleInputs}
+          <>
+            <Stepper activeStep={activeStep}>
+              {steps.map((label, index) => {
+                const stepProps = {};
+                const labelProps = {};
+
+                return (
+                  <Step key={label} {...stepProps}>
+                    <StepLabel className={classes.stepLabel} {...labelProps}>
+                      {label}
+                    </StepLabel>
+                  </Step>
+                );
+              })}
+            </Stepper>
+
+            <React.Fragment>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  pt: 2,
+                  maxHeight: "40rem",
+                }}
+              >
+                {activeStep === 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      overflow: "auto",
+                    }}
+                  >
+                    <Table
+                      titles={[
+                        "Proceso ID",
+                        "Tiempo de arribo (μs)",
+                        "Tiempo de irrupción (μs)	",
+                        "Tamaño (MB)",
+                      ]}
+                      items={processes}
+                      handleInputs={handleInputs}
+                    />
+                    <Box marginY={1} />
+                    <Button onClick={addNewProcess} variant="contained">
+                      Agregar proceso
+                    </Button>
+                  </Box>
+                )}
+                {activeStep === 1 && (
+                  <MemoryTable
+                    titles={["Nombre particion", "Tamaño"]}
+                    items={memoryPartitions}
                   />
-                  <Box marginY={1} />
-                  <Button onClick={addNewProcess} variant="contained">
-                    Agregar proceso
-                  </Button>
-                </Box>
-              )}
-              {activeStep === 1 && (
-                <MemoryTable
-                  titles={["Nombre particion", "Tamaño"]}
-                  items={[
-                    {
-                      name: "Small",
-                      usedSpace: 0,
-                      size: 60,
-                      isInUse: false,
-                      idProcess: null,
-                    },
-                    {
-                      name: "Medium",
-                      usedSpace: 0,
-                      size: 120,
-                      isInUse: false,
-                      idProcess: null,
-                    },
-                    {
-                      name: "Big",
-                      usedSpace: 0,
-                      size: 250,
-                      isInUse: false,
-                      idProcess: null,
-                    },
-                  ]}
-                />
-              )}
-            </Box>
-            <ControlButtons />
-          </React.Fragment>
+                )}
+              </Box>
+              <ControlButtons />
+            </React.Fragment>
+          </>
         )}
       </div>
     </div>

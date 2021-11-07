@@ -17,15 +17,15 @@ const useStyles = makeStyles({
 export default function BasicTable({ items = [] }) {
   const classes = useStyles();
   return (
-    <TableContainer component={Paper}>
-      <Table
-        sx={{ minWidth: 650, overflow: "hidden" }}
-        aria-label="simple table"
-      >
+    <TableContainer component={Paper} sx={{ width: '25%' }}>
+      <Table  >
         <TableHead>
           <TableRow>
             <TableCell>Nombre Partición</TableCell>
+            <TableCell align="center">Proceso ID</TableCell>
             <TableCell align="center">Tamaño total (MB)</TableCell>
+            <TableCell align="center">Espacio Usado (MB)</TableCell>
+            <TableCell align="center">Fragmentacion Interna (MB)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -38,7 +38,16 @@ export default function BasicTable({ items = [] }) {
                 {partition.name}
               </TableCell>
               <TableCell align="center" component="th" scope="row">
+                {partition.idProcess}
+              </TableCell>
+              <TableCell align="center" component="th" scope="row">
                 {partition.size}MB
+              </TableCell>
+              <TableCell align="center" component="th" scope="row">
+                {partition.usedSpace}MB
+              </TableCell>
+              <TableCell align="center" component="th" scope="row">
+                {partition.size - partition.usedSpace}MB
               </TableCell>
             </TableRow>
           ))}
