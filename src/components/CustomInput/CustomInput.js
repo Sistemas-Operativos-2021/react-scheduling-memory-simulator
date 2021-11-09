@@ -35,7 +35,7 @@ export default function UnstyledInput({ placeholder, value, onChange }) {
     <CustomInput
       aria-label="Demo input"
       placeholder={(String(placeholder))}
-      value={value}
+      value={String(value).replace(/^0+/, "")}
       onChange={onChange}
     />
   );
