@@ -6,16 +6,9 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import { TableRow } from "@mui/material";
 import Paper from "@mui/material/Paper";
-import { makeStyles } from "@mui/styles";
 
-const useStyles = makeStyles({
-  inputValue: {
-    textAlign: "right",
-  },
-});
 
 export default function BasicTable({ items = [], title }) {
-  const classes = useStyles();
   return (
     <TableContainer component={Paper} sx={{ width: '30%' }}>
       <Table aria-label="simple table">

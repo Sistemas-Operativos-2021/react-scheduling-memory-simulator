@@ -6,18 +6,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import { TableRow } from "@mui/material";
 import Paper from "@mui/material/Paper";
-import { makeStyles } from "@mui/styles";
 
-const useStyles = makeStyles({
-  inputValue: {
-    textAlign: "right",
-  },
-});
-
-export default function BasicTable({ items = [] }) {
-  const classes = useStyles();
+export default function BasicTable({ items = [], width= 0 }) {
   return (
-    <TableContainer component={Paper} sx={{ width: '25%' }}>
+    <TableContainer component={Paper} sx={{ width: `${width}%` }}>
       <Table  >
         <TableHead>
           <TableRow>

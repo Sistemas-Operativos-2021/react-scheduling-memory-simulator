@@ -11,14 +11,16 @@ import Graph from "../Graph/Graph";
 import StateTable from "../StateTable/StateTable";
 import MemoryTable from "../MemoryTable/MemoryTable";
 
-import { simulatorInformation } from "./dummy";
 import { runSRTF } from "../../utils/scheduleSRTF";
 
-export default function VerticalLinearStepper({ resetSimulation, processes=[], memoryPartitions }) {
+export default function VerticalLinearStepper({
+  resetSimulation,
+  processes = [],
+  memoryPartitions,
+}) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [simulationData, setSimulationData] = React.useState([]);
 
-  console.log({simulationData})
   const handleNext = (index) => {
     if (index === simulationData.length - 1) {
       resetSimulation();
@@ -31,25 +33,25 @@ export default function VerticalLinearStepper({ resetSimulation, processes=[], m
   };
 
   React.useEffect(() => {
-      const simulation = runSRTF({ processes, memoryPartitions });
-      setSimulationData(simulation)
-    
-  }, [processes.length]);
+    const simulation = runSRTF({ processes, memoryPartitions });
+    setSimulationData(simulation);
+  }, [memoryPartitions, processes, processes.length]);
 
-console.log(simulationData)
   return (
     <Box sx={{ width: "100%" }}>
-      {simulationData.length && <div
-        style={{
-          position: "fixed",
-          width: "95%",
-          top: 0,
-          backgroundColor: "#FFFFCC",
-          zIndex: 1,
-        }}
-      >
-        <Graph  gant={simulationData.slice(-1)[0].gant} />
-      </div>}
+      {simulationData.length && (
+        <div
+          style={{
+            position: "fixed",
+            width: "95%",
+            top: 0,
+            backgroundColor: "#FFFFCC",
+            zIndex: 1,
+          }}
+        >
+          <Graph gant={simulationData.slice(-1)[0].gant} />
+        </div>
+      )}
       <Box marginY={8} />
 
       <Stepper activeStep={activeStep} orientation="vertical">
@@ -88,6 +90,7 @@ console.log(simulationData)
 
                     <Box marginX={1} />
                     <MemoryTable
+                      width={25}
                       items={step.memory}
                       title="Estado Listo/Suspendido"
                     />
@@ -119,7 +122,9 @@ console.log(simulationData)
                     onClick={handleNext.bind(null, index)}
                     sx={{ mt: 1, mr: 1 }}
                   >
-                    {index === simulationData.length - 1 ? "Finalizar" : "Siguiente"}
+                    {index === simulationData.length - 1
+                      ? "Finalizar"
+                      : "Siguiente"}
                   </Button>
                   <Button
                     disabled={index === 0}

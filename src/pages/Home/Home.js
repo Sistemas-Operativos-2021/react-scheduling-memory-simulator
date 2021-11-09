@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -8,7 +8,6 @@ import { makeStyles } from "@mui/styles";
 import Table from "../../components/Table/Table";
 import MemoryTable from "../../components/MemoryTable/MemoryTable";
 import Simulation from "../../components/Simulation/Simulation";
-import { runSRTF } from "../../utils/scheduleSRTF";
 import { memoryPartitions } from "./memoryPartitions";
 const useStyles = makeStyles({
   root: {
@@ -40,7 +39,7 @@ const useStyles = makeStyles({
     },
   },
 });
-const steps = ["Ingresar procesos", "Corroborar memoria"];
+const steps = ["Ingresar procesos", "Información sobre memoria"];
 const newProcess = {
   id: 1,
   arrival_time: 0,
@@ -53,9 +52,28 @@ export default function HorizontalLinearStepper() {
   const [activeStep, setActiveStep] = useState(0);
   const [processes, setProcesses] = useState([newProcess]);
 
-  const addNewProcess = () => {
-    setProcesses([...processes, { ...newProcess, id: processes.length + 1 }]);
-  };
+  const existProcessHuge = React.useMemo(() => {
+    return processes.find((process) => process.size > 250);
+  }, [processes]);
+
+  const emptyData = React.useMemo(() => {
+    return processes.some(
+      (process) => !(process.irruption_time && process.size)
+    );
+  }, [processes]);
+
+  const addNewProcess = (() => {
+    setProcesses([
+      ...processes,
+      {
+        ...newProcess,
+        id: processes.length + 1,
+        arrival_time: 0,
+        irruption_time: 0,
+        size: 0,
+      },
+    ]);
+  });
 
   const handleInputs = (index, field, value) => {
     if (value < 0) return false;
@@ -88,18 +106,36 @@ export default function HorizontalLinearStepper() {
       </Button>
       <Box sx={{ flex: "1 1 auto" }} />
 
-      <Button onClick={handleNext}>
+      <Button onClick={handleNext} disabled={emptyData}>
         {activeStep === steps.length - 1 ? "Correr simulacion" : "Siguiente"}
       </Button>
     </Box>
   );
 
-  
+  const onDelete = (index) => {
+    const processesCopy = JSON.parse(JSON.stringify(processes));
+    processesCopy.splice(index, 1);
+    setProcesses(processesCopy);
+  };
+
+  React.useEffect(() => {
+    const table = document.getElementById("scrollfortablecontainer");
+    if (!!table.scrollHeight){
+
+      table.scrollTop = table.scrollHeight;
+
+    }
+  }, [ processes.length]);
+
   return (
     <div className={classes.root}>
       <div className={classes.content}>
         {activeStep === steps.length ? (
-          <Simulation resetSimulation={handleReset} memoryPartitions={memoryPartitions} processes={processes} />
+          <Simulation
+            resetSimulation={handleReset}
+            memoryPartitions={memoryPartitions}
+            processes={processes}
+          />
         ) : (
           <>
             <Stepper activeStep={activeStep}>
@@ -132,27 +168,35 @@ export default function HorizontalLinearStepper() {
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      overflow: "auto",
+                      maxHeight: 500,
+                      overflowY: "auto",
                     }}
                   >
                     <Table
+                      onDelete={onDelete}
                       titles={[
                         "Proceso ID",
-                        "Tiempo de arribo (μs)",
-                        "Tiempo de irrupción (μs)	",
+                        "Tiempo de arribo (u.t.)",
+                        "Tiempo de irrupción (u.t.)	",
                         "Tamaño (MB)",
                       ]}
+                      existProcessHuge={existProcessHuge}
                       items={processes}
                       handleInputs={handleInputs}
                     />
                     <Box marginY={1} />
-                    <Button onClick={addNewProcess} variant="contained">
+                    <Button
+                      disabled={existProcessHuge}
+                      onClick={addNewProcess}
+                      variant="contained"
+                    >
                       Agregar proceso
                     </Button>
                   </Box>
                 )}
                 {activeStep === 1 && (
                   <MemoryTable
+                  width={100}
                     titles={["Nombre particion", "Tamaño"]}
                     items={memoryPartitions}
                   />
