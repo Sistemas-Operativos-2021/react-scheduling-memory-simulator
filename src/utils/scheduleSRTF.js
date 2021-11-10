@@ -29,72 +29,35 @@ export const runSRTF = (configuration) => {
     size: null,
   };
   let clock = 0;
-  while (clock < totalClock || (!!runningState.id || !!readyState.length || !!readySuspendState.length)) {
+
+  while (clock < totalClock || isSomethingRunning(runningState, readySuspendState)) {
+
     if (runningState && runningState?.id && runningState.irruption_time === 0) {
-      finishState.push(JSON.parse(JSON.stringify(runningState)));
-      const copyOfRunningState = JSON.parse(JSON.stringify(runningState));
-      const runningStateIndexIntoMemory = memory.findIndex(
-        (partition) => partition.idProcess === copyOfRunningState.id
-      );
-      memory[runningStateIndexIntoMemory].idProcess = null;
-      memory[runningStateIndexIntoMemory].isInUse = false;
-      memory[runningStateIndexIntoMemory].usedSpace =
-        memory[runningStateIndexIntoMemory].size;
+      
+      const runningStateIndexIntoMemory = finishProcess(memory, runningState, finishState);
+      resetMemory(memory, runningStateIndexIntoMemory);
       runningState = initialRunningState;
     }
 
     // In this line I have the new state according to the arrival time.
-    const newState = configuration.processes.filter(
-      (process) => process.arrival_time === clock
-    );
+    const newState = configuration.processes.filter((process) => process.arrival_time === clock);
+
     // If there is some free space, we will check newState and readySuspendState
     if (memory.some((partition) => !partition.isInUse)) {
       // ReadySuspendState treatment: I have to check if I have free space in the RAM.
       // If I don't have enough space I will do nothing
       // Otherwise, readyState
-      const indexOfProcessesToRemoveIntoReadySuspendState = [];
-      readySuspendState.forEach((process) => {
-        const { memoryIndex, processId } = bestFitPartition(memory, process);
-        if (memoryIndex !== -1) {
-          memory[memoryIndex].isInUse = !memory[memoryIndex].isInUse;
-          memory[memoryIndex].usedSpace =
-            memory[memoryIndex].usedSpace + process.size;
-          memory[memoryIndex].idProcess = process.id;
-          readyState.push(JSON.parse(JSON.stringify(process)));
-          const processIndexIntoReadySuspendState = readySuspendState.findIndex(
-            (process) => process.id === processId
-          );
-          indexOfProcessesToRemoveIntoReadySuspendState.push(
-            processIndexIntoReadySuspendState
-          );
-        }
-      });
-      indexOfProcessesToRemoveIntoReadySuspendState.forEach((processIndex) =>
-        readySuspendState.splice(processIndex, 1)
-      );
+      checkReadySuspendQueue(readySuspendState, readyState, memory);
 
       // NewState treatment: I have to check if I have free space in the RAM.
       // If I don't have enough space I will send the process to ReadySuspendState
       // Otherwise, readyState
-      newState.forEach((process) => {
-        const { memoryIndex } = bestFitPartition(memory, process);
-
-        if (memoryIndex !== -1) {
-          memory[memoryIndex].isInUse = !memory[memoryIndex].isInUse;
-          memory[memoryIndex].usedSpace =
-            memory[memoryIndex].usedSpace + process.size;
-          memory[memoryIndex].idProcess = process.id;
-          readyState.push(JSON.parse(JSON.stringify(process)));
-        } else {
-          readySuspendState.push(JSON.parse(JSON.stringify(process)));
-        }
-      });
+      checkNewStateQueue(newState, readyState, readySuspendState, memory);
     } else {
-      readySuspendState.push(...JSON.parse(JSON.stringify(newState)));
+      readySuspendState.push(...jsonifyThis(newState));
     }
 
     // Ready State treatment.
-
     const shortestITIntoReadyState = sortObjectArray(
       readyState,
       "irruption_time"
@@ -103,51 +66,142 @@ export const runSRTF = (configuration) => {
     // Compare irruption time between Running State and Ready State
     let shortestIT = runningState;
     if (runningState && !!shortestITIntoReadyState && !runningState.id) {
-      shortestIT = shortestITIntoReadyState;
+      
+      shortestIT = loadProcessToCPU(readyState, shortestITIntoReadyState);
 
-      const runningStateIndexIntoReadyState = readyState.findIndex(
-        (process) => process.id === shortestIT.id
-      );
-      if (runningStateIndexIntoReadyState !== -1) {
-        readyState.splice(runningStateIndexIntoReadyState, 1);
-      }
-    } else if (
-      runningState &&
-      shortestITIntoReadyState?.irruption_time < runningState.irruption_time
-    ) {
-      readyState.push(JSON.parse(JSON.stringify(runningState)));
+    } else if (runningState && shortestITIntoReadyState?.irruption_time < runningState.irruption_time) {
 
-      shortestIT = shortestITIntoReadyState;
-      const runningStateIndexIntoReadyState = readyState.findIndex(
-        (process) => process.id === shortestIT.id
-      );
-      if (runningStateIndexIntoReadyState !== -1) {
-        readyState.splice(runningStateIndexIntoReadyState, 1);
-      }
+      shortestIT = loadProcessWithSwapToCPU(readyState, shortestITIntoReadyState, runningState)
     }
 
     runningState = shortestIT;
     if (runningState?.id) {
       
-      gant.push({ ...JSON.parse(JSON.stringify(runningState)), clock });
+      gant.push({ ...jsonifyThis(runningState), clock });
       
     }
     simulatorEntireInformation.push({
       totalClock,
       clock,
-      newState: JSON.parse(JSON.stringify(newState)),
-      readySuspendState: JSON.parse(JSON.stringify(readySuspendState)),
-      readyState: JSON.parse(JSON.stringify(readyState)),
-      runningState: JSON.parse(JSON.stringify(runningState || [])),
-      finishState: JSON.parse(JSON.stringify(finishState)),
-      memory: JSON.parse(JSON.stringify(memory)),
-      gant: JSON.parse(JSON.stringify(gant)),
+      newState: jsonifyThis(newState),
+      readySuspendState: jsonifyThis(readySuspendState),
+      readyState: jsonifyThis(readyState),
+      runningState: jsonifyThis(runningState || []),
+      finishState: jsonifyThis(finishState),
+      memory: jsonifyThis(memory),
+      gant: jsonifyThis(gant),
     });
     if (runningState && runningState.id) {
       runningState.irruption_time =
-        JSON.parse(JSON.stringify(runningState)).irruption_time - 1;
+        jsonifyThis(runningState).irruption_time - 1;
     }
     clock++
-  }
+  };
   return simulatorEntireInformation;
 };
+
+
+// FUNCTIONS
+function finishProcess(memory, runningState, finishState) {
+  finishState.push(jsonifyThis(runningState));
+  const copyOfRunningState = jsonifyThis(runningState);
+  const runningStateIndexIntoMemory = memory.findIndex(
+    (partition) => partition.idProcess === copyOfRunningState.id
+  );
+  return runningStateIndexIntoMemory;
+}
+
+
+function isSomethingRunning(runningState, readySuspendState) {
+  return (!!runningState.id || !!readyState.length || !!readySuspendState.length);
+}
+
+function jsonifyThis(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function resetMemory(memory, memoryIndex) {
+  memory[memoryIndex].idProcess = null;
+  memory[memoryIndex].isInUse = false;
+  memory[memoryIndex].usedSpace =
+  memory[memoryIndex].size;
+}
+
+function updateMemory(memory, memoryIndex, process) {
+  memory[memoryIndex].isInUse = !memory[memoryIndex].isInUse;
+  memory[memoryIndex].usedSpace = memory[memoryIndex].usedSpace + process.size;
+  memory[memoryIndex].idProcess = process.id;
+
+}
+
+function removeFromSuspendState(readyState, readySuspendState) {
+  readyState.push(jsonifyThis(process));
+  const processIndexIntoReadySuspendState = readySuspendState.findIndex(
+    (process) => process.id === processId
+  );
+  indexOfProcessesToRemoveIntoReadySuspendState.push(
+    processIndexIntoReadySuspendState
+  );
+}
+
+function checkReadySuspendQueue(readySuspendState, readyState, memory) {
+
+  // ReadySuspend treatment 
+  readySuspendState.forEach((process) => {
+    const indexOfProcessesToRemoveIntoReadySuspendState = [];
+    const { memoryIndex, processId } = bestFitPartition(memory, process);
+    if (memoryIndex !== -1) {
+      updateMemory(memory, memoryIndex, process);
+      readyState.push(jsonifyThis(process));
+      const processIndexIntoReadySuspendState = readySuspendState.findIndex(
+        (process) => process.id === processId
+      );
+      indexOfProcessesToRemoveIntoReadySuspendState.push(
+        processIndexIntoReadySuspendState
+      );
+    }
+  });
+  indexOfProcessesToRemoveIntoReadySuspendState.forEach((processIndex) =>
+    readySuspendState.splice(processIndex, 1)
+  );
+}
+
+function checkNewStateQueue(newState, readyState, readySuspendState, memory) {
+  newState.forEach((process) => {
+    const { memoryIndex } = bestFitPartition(memory, process);
+    if (memoryIndex !== -1) {
+      updateMemory(memory, memoryIndex, process)
+      readyState.push(jsonifyThis(process));
+    } else {
+      readySuspendState.push(jsonifyThis(process));
+    }
+  });
+}
+
+function loadProcessToCPU(readyState, shortestITIntoReadyState) {
+  const shortestIT = shortestITIntoReadyState;
+  const runningStateIndexIntoReadyState = readyState.findIndex(
+    (process) => process.id === shortestIT.id
+  );
+  if (runningStateIndexIntoReadyState !== -1) {
+    readyState.splice(runningStateIndexIntoReadyState, 1);
+  }
+  return shortestIT;
+}
+
+function loadProcessWithSwapToCPU(readyState, shortestITIntoReadyState, runningState) {
+
+  readyState.push(jsonifyThis(runningState));
+
+  const shortestIT = shortestITIntoReadyState;
+  const runningStateIndexIntoReadyState = readyState.findIndex(
+    (process) => process.id === shortestIT.id
+  );
+  if (runningStateIndexIntoReadyState !== -1) {
+    readyState.splice(runningStateIndexIntoReadyState, 1);
+  }
+  return shortestIT;
+}
+
+
+

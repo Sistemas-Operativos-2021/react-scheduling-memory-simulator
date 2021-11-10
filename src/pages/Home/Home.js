@@ -113,7 +113,7 @@ export default function HorizontalLinearStepper() {
   );
 
   const onDelete = (index) => {
-    const processesCopy = JSON.parse(JSON.stringify(processes));
+    const processesCopy = JSON.parse(JSON.stringify((processes)));
     processesCopy.splice(index, 1);
     setProcesses(processesCopy);
   };
