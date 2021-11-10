@@ -127,18 +127,16 @@ export const runSRTF = (configuration) => {
     }
 
     runningState = shortestIT;
-    if (runningState?.id) {
+    gant.push({ ...JSON.parse(JSON.stringify(runningState)), clock });
       
-      gant.push({ ...JSON.parse(JSON.stringify(runningState)), clock });
-      
-    }
+    
     simulatorEntireInformation.push({
       totalClock,
       clock,
       newState: JSON.parse(JSON.stringify(newState)),
       readySuspendState: JSON.parse(JSON.stringify(readySuspendState)),
       readyState: JSON.parse(JSON.stringify(readyState)),
-      runningState: JSON.parse(JSON.stringify(runningState || [])),
+      runningState: JSON.parse(JSON.stringify(runningState)),
       finishState: JSON.parse(JSON.stringify(finishState)),
       memory: JSON.parse(JSON.stringify(memory)),
       gant: JSON.parse(JSON.stringify(gant)),
@@ -149,5 +147,6 @@ export const runSRTF = (configuration) => {
     }
     clock++
   }
+
   return simulatorEntireInformation;
 };

@@ -33,7 +33,7 @@ const Graph = ({ gant = [] }) => {
   const gantFormated = processesArray.map((process) => {
     return [
       "Estado Ejecutando",
-      `P${process.id}`,
+      process.id ? `P${process.id}`: "Vacio",
       process.clock,
       process.endClock,
     ];
