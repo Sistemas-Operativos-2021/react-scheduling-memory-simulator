@@ -30,7 +30,7 @@ export default function BasicTable({ items = [], handleInputs, onDelete, existPr
             <TableCell>Proceso ID</TableCell>
             <TableCell align="center">Tiempo de arribo (u.t.)</TableCell>
             <TableCell align="center">Tiempo de irrupción (u.t.)</TableCell>
-            <TableCell align="center">Tamaño (MB)</TableCell>
+            <TableCell align="center">Tamaño (KB)</TableCell>
             <TableCell align="center"></TableCell>
           </TableRow>
         </TableHead>

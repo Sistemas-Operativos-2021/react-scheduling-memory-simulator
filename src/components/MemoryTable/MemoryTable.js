@@ -15,9 +15,9 @@ export default function BasicTable({ items = [], width= 0 }) {
           <TableRow>
             <TableCell>Nombre Partición</TableCell>
             <TableCell align="center">Proceso ID</TableCell>
-            <TableCell align="center">Tamaño total (MB)</TableCell>
-            <TableCell align="center">Espacio Usado (MB)</TableCell>
-            <TableCell align="center">Fragmentacion Interna (MB)</TableCell>
+            <TableCell align="center">Tamaño total (KB)</TableCell>
+            <TableCell align="center">Espacio Usado (KB)</TableCell>
+            <TableCell align="center">Fragmentacion Interna (KB)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -33,13 +33,13 @@ export default function BasicTable({ items = [], width= 0 }) {
                 {partition.idProcess}
               </TableCell>
               <TableCell align="center" component="th" scope="row">
-                {partition.size}MB
+                {partition.size}KB
               </TableCell>
               <TableCell align="center" component="th" scope="row">
-                {partition.usedSpace}MB
+                {partition.usedSpace}KB
               </TableCell>
               <TableCell align="center" component="th" scope="row">
-                {partition.size - partition.usedSpace}MB
+                {partition.isInUse ? `${partition.size - partition.usedSpace}KB`: '-'}
               </TableCell>
             </TableRow>
           ))}

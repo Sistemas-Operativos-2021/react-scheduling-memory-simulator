@@ -37,6 +37,12 @@ export default function VerticalLinearStepper({
     setSimulationData(simulation);
   }, [memoryPartitions, processes, processes.length]);
 
+  const simulationDataWithoutEmptyNewState = []
+  simulationData.forEach(data => {
+    if (data?.newState.length > 0 || (data?.runningState && data.runningState.irruption_time === 1)){
+      simulationDataWithoutEmptyNewState.push(data)
+    }
+  })
   return (
     <Box sx={{ width: "100%" }}>
       {simulationData.length && (
@@ -55,8 +61,8 @@ export default function VerticalLinearStepper({
       <Box marginY={8} />
 
       <Stepper activeStep={activeStep} orientation="vertical">
-        {simulationData.map((step, index) => (
-          <Step key={step.clock}>
+        {simulationDataWithoutEmptyNewState.map((step, index) => (
+           <Step key={step.clock}>
             <StepLabel
               optional={
                 index === 2 ? (
@@ -69,7 +75,7 @@ export default function VerticalLinearStepper({
               {String(step.clock)} u.t.
             </StepLabel>
             <StepContent sx={{ width: "100%" }}>
-              {activeStep < simulationData.length && (
+              {activeStep < simulationDataWithoutEmptyNewState.length && (
                 <>
                   <Box sx={{ display: "flex" }}>
                     <StateTable items={step.newState} title="Estado Nuevo" />
@@ -122,7 +128,7 @@ export default function VerticalLinearStepper({
                     onClick={handleNext.bind(null, index)}
                     sx={{ mt: 1, mr: 1 }}
                   >
-                    {index === simulationData.length - 1
+                    {index === simulationDataWithoutEmptyNewState.length - 1
                       ? "Finalizar"
                       : "Siguiente"}
                   </Button>

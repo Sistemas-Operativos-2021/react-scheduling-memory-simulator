@@ -40,7 +40,7 @@ export default function BasicTable({ items = [], title }) {
                 {process.irruption_time}
               </TableCell>
               <TableCell align="center" component="th" scope="row">
-                {process.size}MB
+                {process.size}KB
               </TableCell>
             </TableRow>
           ))}

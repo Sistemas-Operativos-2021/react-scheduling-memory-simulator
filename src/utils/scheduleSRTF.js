@@ -1,6 +1,5 @@
 import bestFitPartition from "./bestFit";
 import sortObjectArray from "./sortObjectArray";
-import sortProcessesArrayByTA from "./sortProcessesArrayByTA";
 
 const initialRunningState = {
   id: null,
@@ -11,11 +10,7 @@ const initialRunningState = {
 
 export const runSRTF = (configuration) => {
   const simulatorEntireInformation = [];
-  const processesOrderedByTA = sortProcessesArrayByTA(configuration.processes);
-  const totalClock = processesOrderedByTA.reduce(
-    (acc, current) => acc + current.irruption_time,
-    0
-  );
+
   const memory = [...configuration.memoryPartitions];
 
   const readyState = [];
@@ -29,7 +24,11 @@ export const runSRTF = (configuration) => {
     size: null,
   };
   let clock = 0;
-  while (clock < totalClock || (!!runningState.id || !!readyState.length || !!readySuspendState.length)) {
+  const processesWhichNotWereUsed = JSON.parse(
+    JSON.stringify(configuration.processes)
+  );
+  while (      !!processesWhichNotWereUsed.length ||
+    (!!runningState.id || !!readyState.length || !!readySuspendState.length)) {
     if (runningState && runningState?.id && runningState.irruption_time === 0) {
       finishState.push(JSON.parse(JSON.stringify(runningState)));
       const copyOfRunningState = JSON.parse(JSON.stringify(runningState));
@@ -38,8 +37,7 @@ export const runSRTF = (configuration) => {
       );
       memory[runningStateIndexIntoMemory].idProcess = null;
       memory[runningStateIndexIntoMemory].isInUse = false;
-      memory[runningStateIndexIntoMemory].usedSpace =
-        memory[runningStateIndexIntoMemory].size;
+      memory[runningStateIndexIntoMemory].usedSpace = 0;
       runningState = initialRunningState;
     }
 
@@ -47,6 +45,16 @@ export const runSRTF = (configuration) => {
     const newState = configuration.processes.filter(
       (process) => process.arrival_time === clock
     );
+    
+  
+  newState.forEach((process) => {
+        const index = processesWhichNotWereUsed.findIndex(
+          (processNotUsed) => processNotUsed.id === process.id
+        );
+        if (index !== -1) {
+          processesWhichNotWereUsed.splice(index, 1);
+        }
+      });
     // If there is some free space, we will check newState and readySuspendState
     if (memory.some((partition) => !partition.isInUse)) {
       // ReadySuspendState treatment: I have to check if I have free space in the RAM.
@@ -57,8 +65,7 @@ export const runSRTF = (configuration) => {
         const { memoryIndex, processId } = bestFitPartition(memory, process);
         if (memoryIndex !== -1) {
           memory[memoryIndex].isInUse = !memory[memoryIndex].isInUse;
-          memory[memoryIndex].usedSpace =
-            memory[memoryIndex].usedSpace + process.size;
+          memory[memoryIndex].usedSpace = process.size;
           memory[memoryIndex].idProcess = process.id;
           readyState.push(JSON.parse(JSON.stringify(process)));
           const processIndexIntoReadySuspendState = readySuspendState.findIndex(
@@ -81,8 +88,7 @@ export const runSRTF = (configuration) => {
 
         if (memoryIndex !== -1) {
           memory[memoryIndex].isInUse = !memory[memoryIndex].isInUse;
-          memory[memoryIndex].usedSpace =
-            memory[memoryIndex].usedSpace + process.size;
+          memory[memoryIndex].usedSpace = process.size;
           memory[memoryIndex].idProcess = process.id;
           readyState.push(JSON.parse(JSON.stringify(process)));
         } else {
@@ -131,7 +137,6 @@ export const runSRTF = (configuration) => {
       
     
     simulatorEntireInformation.push({
-      totalClock,
       clock,
       newState: JSON.parse(JSON.stringify(newState)),
       readySuspendState: JSON.parse(JSON.stringify(readySuspendState)),

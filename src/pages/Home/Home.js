@@ -178,7 +178,7 @@ export default function HorizontalLinearStepper() {
                         "Proceso ID",
                         "Tiempo de arribo (u.t.)",
                         "Tiempo de irrupción (u.t.)	",
-                        "Tamaño (MB)",
+                        "Tamaño (KB)",
                       ]}
                       existProcessHuge={existProcessHuge}
                       items={processes}
