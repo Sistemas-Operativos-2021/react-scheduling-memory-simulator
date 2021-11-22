@@ -27,10 +27,14 @@ export const runSRTF = (configuration) => {
   const processesWhichNotWereUsed = JSON.parse(
     JSON.stringify(configuration.processes)
   );
-  while (      !!processesWhichNotWereUsed.length ||
-    (!!runningState.id || !!readyState.length || !!readySuspendState.length)) {
+  while (
+    !!processesWhichNotWereUsed.length ||
+    !!runningState.id ||
+    !!readyState.length ||
+    !!readySuspendState.length
+  ) {
     if (runningState && runningState?.id && runningState.irruption_time === 0) {
-      finishState.push(JSON.parse(JSON.stringify(runningState)));
+      finishState.push(JSON.parse(JSON.stringify({...runningState, clock})));
       const copyOfRunningState = JSON.parse(JSON.stringify(runningState));
       const runningStateIndexIntoMemory = memory.findIndex(
         (partition) => partition.idProcess === copyOfRunningState.id
@@ -45,16 +49,15 @@ export const runSRTF = (configuration) => {
     const newState = configuration.processes.filter(
       (process) => process.arrival_time === clock
     );
-    
-  
-  newState.forEach((process) => {
-        const index = processesWhichNotWereUsed.findIndex(
-          (processNotUsed) => processNotUsed.id === process.id
-        );
-        if (index !== -1) {
-          processesWhichNotWereUsed.splice(index, 1);
-        }
-      });
+
+    newState.forEach((process) => {
+      const index = processesWhichNotWereUsed.findIndex(
+        (processNotUsed) => processNotUsed.id === process.id
+      );
+      if (index !== -1) {
+        processesWhichNotWereUsed.splice(index, 1);
+      }
+    });
     // If there is some free space, we will check newState and readySuspendState
     if (memory.some((partition) => !partition.isInUse)) {
       // ReadySuspendState treatment: I have to check if I have free space in the RAM.
@@ -117,6 +120,13 @@ export const runSRTF = (configuration) => {
       if (runningStateIndexIntoReadyState !== -1) {
         readyState.splice(runningStateIndexIntoReadyState, 1);
       }
+
+      const runningStateIndexIntoNewState = newState.findIndex(
+        (process) => process.id === shortestIT.id
+      );
+      if (runningStateIndexIntoNewState !== -1) {
+        newState.splice(runningStateIndexIntoNewState, 1);
+      }
     } else if (
       runningState &&
       shortestITIntoReadyState?.irruption_time < runningState.irruption_time
@@ -134,8 +144,7 @@ export const runSRTF = (configuration) => {
 
     runningState = shortestIT;
     gant.push({ ...JSON.parse(JSON.stringify(runningState)), clock });
-      
-    
+
     simulatorEntireInformation.push({
       clock,
       newState: JSON.parse(JSON.stringify(newState)),
@@ -150,7 +159,7 @@ export const runSRTF = (configuration) => {
       runningState.irruption_time =
         JSON.parse(JSON.stringify(runningState)).irruption_time - 1;
     }
-    clock++
+    clock++;
   }
 
   return simulatorEntireInformation;

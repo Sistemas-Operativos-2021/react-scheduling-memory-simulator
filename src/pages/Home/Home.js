@@ -1,44 +1,17 @@
-import React, { useState} from "react";
-import Box from "@mui/material/Box";
-import Stepper from "@mui/material/Stepper";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
-import Button from "@mui/material/Button";
-import { makeStyles } from "@mui/styles";
+// REACT
+import React, { useState } from "react";
+
+// MATERIAL UI
+import { Box, Stepper, Step, StepLabel, Button } from "@mui/material";
+import useStyles from "./styles";
+
+// CUSTOM COMPONENTS
 import Table from "../../components/Table/Table";
 import MemoryTable from "../../components/MemoryTable/MemoryTable";
 import Simulation from "../../components/Simulation/Simulation";
+
+// UTILS
 import { memoryPartitions } from "./memoryPartitions";
-const useStyles = makeStyles({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    marginTop: "5rem",
-  },
-  content: {
-    display: "flex",
-    flexDirection: "column",
-    height: "25%",
-  },
-  stepLabel: {
-    "& .MuiStepLabel-label.Mui-active": {
-      color: "rgba(0, 0, 0, 0.87)",
-    },
-    "& .MuiStepLabel-label.Mui-disabled": {
-      color: "rgba(0, 0, 0, 0.87)",
-      opacity: 0.7,
-    },
-    "& .MuiStepLabel-label.Mui-alternativeLabel": {
-      color: "rgba(0, 0, 0, 0.87)",
-    },
-    "& .MuiStepLabel-label.Mui-completed": {
-      color: "rgba(0, 0, 0, 0.87)",
-    },
-  },
-});
 const steps = ["Ingresar procesos", "Información sobre memoria"];
 const newProcess = {
   id: 1,
@@ -62,7 +35,7 @@ export default function HorizontalLinearStepper() {
     );
   }, [processes]);
 
-  const addNewProcess = (() => {
+  const addNewProcess = () => {
     setProcesses([
       ...processes,
       {
@@ -73,7 +46,7 @@ export default function HorizontalLinearStepper() {
         size: 0,
       },
     ]);
-  });
+  };
 
   const handleInputs = (index, field, value) => {
     if (value < 0) return false;
@@ -120,12 +93,10 @@ export default function HorizontalLinearStepper() {
 
   React.useEffect(() => {
     const table = document.getElementById("scrollfortablecontainer");
-    if (!!table.scrollHeight){
-
+    if (!!table.scrollHeight) {
       table.scrollTop = table.scrollHeight;
-
     }
-  }, [ processes.length]);
+  }, [processes.length]);
 
   return (
     <div className={classes.root}>
@@ -196,7 +167,7 @@ export default function HorizontalLinearStepper() {
                 )}
                 {activeStep === 1 && (
                   <MemoryTable
-                  width={100}
+                    width={100}
                     titles={["Nombre particion", "Tamaño"]}
                     items={memoryPartitions}
                   />

@@ -1,16 +1,25 @@
-import * as React from "react";
-import Table from "@mui/material/Table";
-import Box from "@mui/material/Box";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import { Button, TableRow, Tooltip } from "@mui/material";
-import Paper from "@mui/material/Paper";
-import CustomInput from "../CustomInput/CustomInput";
-import { makeStyles } from "@mui/styles";
+// REACT
+import React from "react";
+
+// MATERIAL UI
+import {
+  Table,
+  Box,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  Button,
+  TableRow,
+  Tooltip,
+  Paper,
+  Alert
+} from "@mui/material";
 import { Delete } from "@mui/icons-material";
-import Alert from "@mui/material/Alert";
+import { makeStyles } from "@mui/styles";
+
+// CUSTOM COMPONENTS
+import CustomInput from "../CustomInput/CustomInput";
 
 const useStyles = makeStyles({
   inputValue: {
@@ -18,12 +27,16 @@ const useStyles = makeStyles({
   },
 });
 
-export default function BasicTable({ items = [], handleInputs, onDelete, existProcessHuge= false }) {
+export default function BasicTable({
+  items = [],
+  handleInputs,
+  onDelete,
+  existProcessHuge = false,
+}) {
   const classes = useStyles();
-  
+
   return (
-    <TableContainer component={Paper}                     id="scrollfortablecontainer"
-    >
+    <TableContainer component={Paper} id="scrollfortablecontainer">
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -103,17 +116,21 @@ export default function BasicTable({ items = [], handleInputs, onDelete, existPr
           ))}
         </TableBody>
       </Table>
-      {existProcessHuge && <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          flex: 1,
-          width: "100%",
-          margin: 2
-        }}
-      >
-        <Alert severity="error">Proceso muy grande. Memoria insuficiente.</Alert>
-      </Box>}
+      {existProcessHuge && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            flex: 1,
+            width: "100%",
+            margin: 2,
+          }}
+        >
+          <Alert severity="error">
+            Proceso muy grande. Memoria insuficiente.
+          </Alert>
+        </Box>
+      )}
     </TableContainer>
   );
 }
