@@ -123,19 +123,13 @@ export default function VerticalLinearStepper({
           </Box>
         </div>
       )}
-      <Box marginY={8} />
+      <Box marginY={15} />
 
       <Stepper activeStep={activeStep} orientation="vertical">
         {simulationDataWithoutEmptyNewState.map((step, index) => (
           <Step key={step.clock}>
             <StepLabel
-              optional={
-                index === 2 ? (
-                  <Typography variant="caption">
-                    Ultimo instante de tiempo
-                  </Typography>
-                ) : null
-              }
+            
             >
               {String(step.clock)} u.t.
             </StepLabel>
