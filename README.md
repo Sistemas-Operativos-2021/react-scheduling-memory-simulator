@@ -38,6 +38,9 @@ npm start
 
 Una vez terminado la carga, el simulador se abrirá en local en la siguiente [https://localhost:3000](https://localhost:3000) en su Web Browser seleccionado.
 
+### Adicional - Version Web deployada
+Url: https://scheduling-memory-simulator.web.app/
+
 ## Grupo 3 - SO 2021
 - Araujo, Mariana Ayelen
 - Curima, Jorge
